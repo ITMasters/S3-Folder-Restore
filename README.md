@@ -2,6 +2,7 @@
 Python script for restoring versioned folders or buckets in S3 to a point in time.
 
 ## Usage
+```
 S3-point-in-time-recovery.py 	[-h] [--source-prefix SOURCE_PREFIX] 
                                 [--time TIME] [--dest DEST] 
                                 [--dest-prefix DEST_PREFIX] 
@@ -30,3 +31,4 @@ optional arguments:
   --profile PROFILE                   AWS API Profile to use - uses default profile by default 
   --endpoint-region ENDPOINT_REGION   AWS S3 endpoint region - defaults to us-east-1 
                                       (NOTE: Boto3 bug #125 means that us-east-1 won't create a bucket for you if it does not exist 
+```
