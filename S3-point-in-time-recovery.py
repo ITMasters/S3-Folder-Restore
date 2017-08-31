@@ -45,7 +45,10 @@ def restore(source, dt, sourcePrefix=DEFAULTSOURCEPREFIX, dest=DEFAULTDEST, dest
 		else:
 			session = boto3.Session(aws_access_key_id=accessKey, aws_secret_access_key=secretKey, aws_session_token=sessionToken)
 
-	s3 = session.client('s3')
+	if (endpointRegion==''):
+		s3 = session.client('s3', region_name='us-east-1')
+	else:
+		s3 = session.client('s3', region_name=endpointRegion)
 
 	## Processing
 	mostRecent = {}
@@ -102,9 +105,7 @@ def restore(source, dt, sourcePrefix=DEFAULTSOURCEPREFIX, dest=DEFAULTDEST, dest
 		destPrefix = destPrefix.format(src=source, y=dt.year, M=dt.month, d=dt.day, h=dt.hour, m=dt.minute)
 	try:
 		if (endpointRegion == ''):
-			# https://github.com/boto/boto3/issues/125
-			# While this doesn't throw in error - it doesn't seem to create the bucket either
-			s3.create_bucket(Bucket=dest, ACL='private', CreateBucketConfiguration={})
+			s3.create_bucket(Bucket=dest, ACL='private')
 		else:
 			s3.create_bucket(Bucket=dest, ACL='private', CreateBucketConfiguration={'LocationConstraint':endpointRegion})
 	except ClientError as err:
@@ -134,8 +135,7 @@ if __name__ == '__main__':
 	argParser.add_argument('--secret-key', type=str, default=DEFAULTSECRETKEY, help='AWS Secret Key, if not using default AWS API profile')
 	argParser.add_argument('--session-token', type=str, default=DEFAULTSESSIONTOKEN, help='AWS Session Token, if required')
 	argParser.add_argument('--profile', type=str, default=DEFAULTPROFILE, help='AWS API Profile to use - uses default profile by default')
-	# https://github.com/boto/boto3/issues/125
-	argParser.add_argument('--endpoint-region', type=str, default=DEFAULTENDPOINTREGION, help='AWS S3 endpoint region - defaults to us-east-1 (NOTE: Boto3 bug #125 means that us-east-1 won\'t create a bucket for you if it does not exist)')
+	argParser.add_argument('--endpoint-region', type=str, default=DEFAULTENDPOINTREGION, help='AWS S3 endpoint region - defaults to us-east-1')
 	args = vars(argParser.parse_args())
 
 	## Arg processing
